@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sy.user.service.impl.UserMapper">
+
+	<resultMap id="code" type="com.sy.user.service.CommonVO">
+		<result property="code" column="CODE"/>
+		<result property="codeName" column="CODE_NAME"/>
+	</resultMap>
+	<resultMap id="user" type="com.sy.user.service.UserVO">
+		<result property="userId" column="USER_ID"/>
+		<result property="userPassword" column="USER_PASSWORD"/>
+		<result property="userFirstName" column="USER_FIRSTNAME"/>
+		<result property="userLastName" column="USER_LASTNAME"/>
+		<result property="userFullName" column="USER_FULLNAME"/>
+		<result property="userPhoneNumber" column="USER_PHONENUMBER"/>
+		<result property="userHomeNumber" column="USER_HOMENUMBER"/>
+		<result property="userEmail" column="USER_EMAIL"/>
+		<result property="userZipCode" column="USER_ZIPCODE"/>
+		<result property="userRoadName" column="USER_ROADNAME"/>
+		<result property="userDetailAdress" column="USER_DETAILADRESS"/>
+		<result property="userAdress" column="USER_ADRESS"/>
+		<result property="userDepartment" column="USER_DEPARTMENT"/>
+		<result property="userDepartmentName" column="USER_DEPARTMENT_NAME"/>		
+		<result property="userRank" column="USER_RANK"/>
+		<result property="userRankName" column="USER_RANK_NAME"/>		
+		<result property="userPosition" column="USER_POSIOTION"/>
+		<result property="userPositionName" column="USER_POSIOTION_NAME"/>		
+		<result property="userRegDt" column="USER_REG_DT"/>
+		<result property="userModDt" column="USER_MOD_DT"/>																				
+	</resultMap>
+	
+		<select id="selectDepartment" resultType="CommonVO">
+			
+			SELECT
+				  CODE_NAME as codeName	
+				, CODE
+			FROM 
+				TB_COMMON
+			WHERE
+				CODE_CATEGORY = 100	
+				
+		</select>
+
+		<select id="selectJobGrade" resultType="CommonVO">
+			
+			SELECT
+				  CODE_NAME as codeName	
+				, CODE
+			FROM 
+				TB_COMMON
+			WHERE
+				CODE_CATEGORY = 200	
+				
+		</select>
+		
+		<select id="selectJobPosition" resultType="CommonVO">
+			
+			SELECT
+				  CODE_NAME as codeName	
+				, CODE
+			FROM 
+				TB_COMMON
+			WHERE
+				CODE_CATEGORY = 300	
+				
+		</select>
+						
+		<select id="userIdChk" resultMap="user" parameterType="String" >
+			
+			SELECT
+				 USER_ID
+			FROM 
+				 TB_USER
+			WHERE
+				 USER_ID = #{value}	
+				
+		</select>
+		
+		<select id="userOneSelect" resultMap="user" parameterType="UserVO" >
+			
+			SELECT
+			      TB_USER.*
+				, (SELECT CODE_NAME as USER_DEPARTMENT_NAME FROM TB_COMMON WHERE CODE = USER_DEPARTMENT AND CODE_CATEGORY = 100) as USER_DEPARTMENT_NAME		
+				, (SELECT CODE_NAME as USER_RANK_NAME FROM TB_COMMON WHERE CODE = USER_RANK AND CODE_CATEGORY = 200) as USER_RANK_NAME		
+				, (SELECT CODE_NAME as USER_POSIOTION_NAME FROM TB_COMMON WHERE CODE = USER_POSIOTION AND CODE_CATEGORY = 300) as USER_POSIOTION_NAME
+			FROM 
+				 TB_USER
+			WHERE
+				 USER_ID = #{userId}	
+				
+		</select>		
+		
+		<select id="userList" parameterType="SearchVO" resultMap="user" >
+			
+		SELECT * FROM (
+			SELECT a.*, ROWNUM as rnum FROM(		
+				SELECT
+					  USER_ID
+					, USER_FIRSTNAME
+					, USER_LASTNAME
+					, USER_FULLNAME
+					, USER_PHONENUMBER
+					, USER_HOMENUMBER
+					, USER_EMAIL
+					, USER_ADRESS
+					, (SELECT CODE_NAME as USER_DEPARTMENT_NAME FROM TB_COMMON WHERE CODE = USER_DEPARTMENT AND CODE_CATEGORY = 100) as USER_DEPARTMENT_NAME		
+					, (SELECT CODE_NAME as USER_RANK_NAME FROM TB_COMMON WHERE CODE = USER_RANK AND CODE_CATEGORY = 200) as USER_RANK_NAME		
+					, (SELECT CODE_NAME as USER_POSIOTION_NAME FROM TB_COMMON WHERE CODE = USER_POSIOTION AND CODE_CATEGORY = 300) as USER_POSIOTION_NAME
+				FROM 
+					 TB_USER
+				ORDER BY USER_FULLNAME )	 
+				a) WHERE 1=1
+					<if test="searchKeyword != '' and searchKeyword != null">
+					AND USER_FULLNAME LIKE '%'||#{searchKeyword} ||'%'
+					</if> 
+					AND rnum >= #{firstIndex} AND rnum <![CDATA[ <= ]]> #{recordCountPerPage}
+					
+					
+				
+		</select>
+		
+		<select id="userListCount" parameterType="SearchVO" resultType="int" >
+			
+			SELECT
+				count(*)
+			FROM 
+				 TB_USER
+			WHERE 1=1
+			<if test="searchKeyword != '' and searchKeyword != null">
+			AND USER_FULLNAME LIKE '%'||#{searchKeyword} ||'%'
+			</if>			
+			ORDER BY USER_FULLNAME	
+				
+		</select>				
+		
+		
+		<insert id="userSignUp" parameterType="UserVO" >
+	
+			INSERT INTO TB_USER
+			( 	USER_ID
+			  , USER_PASSWORD 
+			  , USER_FIRSTNAME 
+			  , USER_LASTNAME 
+			  , USER_FULLNAME			  
+			  , USER_PHONENUMBER 
+			  , USER_HOMENUMBER 
+			  , USER_EMAIL
+			  , USER_ZIPCODE
+			  , USER_ROADNAME
+			  , USER_DETAILADRESS			  			  			   
+			  , USER_ADRESS
+			  , USER_DEPARTMENT		   
+			  , USER_RANK 
+			  , USER_POSIOTION 		  		  		  		  		  		  		  
+			  , USER_REG_DT )
+			VALUES 
+			(   #{userId}
+			  , #{userPassword}
+			  , #{userFirstName}
+			  , #{userLastName}
+			  , #{userFullName}			  
+			  , #{userPhoneNumber}
+			  , #{userHomeNumber}
+			  , #{userEmail}
+			  , #{userZipCode}			  
+			  , #{userRoadName}			  
+			  , #{userDetailAdress}			  
+			  , #{userAdress}
+			  , #{userDepartment}
+			  , #{userRank}
+			  , #{userPosition}
+			  ,   sysdate )	
+		
+		</insert>
+
+		<update id="userUpdate" parameterType="UserVO" >
+	
+			UPDATE TB_USER
+			SET
+			 	USER_PASSWORD = #{userPassword}
+			  , USER_FIRSTNAME = #{userFirstName}
+			  , USER_LASTNAME = #{userLastName}
+			  , USER_FULLNAME = #{userFullName}		  
+			  , USER_PHONENUMBER = #{userPhoneNumber}
+			  , USER_HOMENUMBER = #{userHomeNumber}
+			  , USER_EMAIL = #{userEmail}
+			  , USER_ZIPCODE = #{userZipCode}
+			  , USER_ROADNAME = #{userRoadName}
+			  , USER_DETAILADRESS = #{userDetailAdress}			  			  			   
+			  , USER_ADRESS = #{userAdress}
+			  , USER_DEPARTMENT = #{userDepartment}
+			  , USER_RANK = #{userRank}
+			  , USER_POSIOTION = #{userPosition}		  		  		  		  		  		  
+			  , USER_MOD_DT = sysdate 
+		    WHERE 
+		        USER_ID = #{userId}
+		
+		</update>		
+		
+		<delete id="userDel" parameterType="UserVO">
+		
+			DELETE TB_USER
+			WHERE USER_ID IN (
+			<foreach collection="userIdList" item="item" separator=",">
+				#{item}
+			</foreach> )
+		
+		</delete>
+			
+		
+</mapper>

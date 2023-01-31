@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+    <typeAliases>
+		<typeAlias alias="CommonVO" type="com.sy.user.service.CommonVO"/>
+		<typeAlias alias="UserVO" type="com.sy.user.service.UserVO"/>
+    	<typeAlias alias="SearchVO" type="com.sy.user.service.SearchVO"/>
+    </typeAliases>
+</configuration>
+
+
